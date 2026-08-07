@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -15,14 +15,12 @@ using System.Linq;
 
 namespace TCRSaveEditor
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public ObservableCollection<City> Cities { get; set; } = new();
         public ObservableCollection<City> FilteredCities { get; set; } = new();
         public ObservableCollection<string> Factions { get; set; } = new();
+        public ObservableCollection<string> ResourceCatalog { get; set; } = new();
         public GameMeta GameMeta { get; set; } = new();
         private string? _currentSavePath;
         public MainWindow()
@@ -85,33 +83,13 @@ namespace TCRSaveEditor
             var outPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(_currentSavePath)!, editedFileName);
             try
             {
-                TCRSaveEditor.Services.GvasWriter.WriteChanges(_currentSavePath, outPath, Cities, GameMeta);
+                TCRSaveEditor.Services.SaveOrchestrator.SaveAll(_currentSavePath, outPath, Cities, GameMeta);
                 MessageBox.Show($"Saved and verified: {outPath}");
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Save failed:\n{ex.Message}");
             }
-            //var saveDlg = new Microsoft.Win32.SaveFileDialog
-            //{
-            //    FileName = System.IO.Path.GetFileNameWithoutExtension(_currentSavePath) + "_edited.sav",
-            //    InitialDirectory = System.IO.Path.GetDirectoryName(_currentSavePath),
-            //    DefaultExt = ".sav",
-            //    Filter = "TCR Save Files (.sav)|*.sav"
-            //};
-
-            //if (saveDlg.ShowDialog() == true)
-            //{
-            //    try
-            //    {
-            //        TCRSaveEditor.Services.GvasWriter.WriteChanges(_currentSavePath, saveDlg.FileName, Cities, GameMeta);
-            //        MessageBox.Show($"Saved and verified: {saveDlg.FileName}");
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        MessageBox.Show($"Save failed:\n{ex.Message}");
-            //    }
-            //}
         }
         private void action_opensave_Click(object sender, RoutedEventArgs e)
         {
@@ -155,6 +133,38 @@ namespace TCRSaveEditor
                     FilteredCities.Add(city);
             }
         }
+        private void AddResource_Click(object sender, RoutedEventArgs e)
+        {
+            if (CitiesGrid.SelectedItem is not City city)
+            {
+                MessageBox.Show("Select a city first.");
+                return;
+            }
+
+            string name = NewResourceNameBox.Text.Trim();
+            if (string.IsNullOrEmpty(name))
+            {
+                MessageBox.Show("Enter a resource name.");
+                return;
+            }
+
+            if (city.Resources.Any(r => r.Name == name))
+            {
+                MessageBox.Show("This city already has that resource. Edit its count instead, or remove it first.");
+                return;
+            }
+
+            city.Resources.Add(new Resource { Name = name, Count = 0 });
+            NewResourceNameBox.Text = string.Empty;
+        }
+
+        private void RemoveResource_Click(object sender, RoutedEventArgs e)
+        {
+            if (CitiesGrid.SelectedItem is not City city) return;
+            if (((Button)sender).DataContext is not Resource resource) return;
+            city.Resources.Remove(resource);
+        }
+
         private void ViewHelp_Click(object sender, RoutedEventArgs e)
         {
             string helpPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Help.md");
