@@ -9,6 +9,7 @@ A save editor for Total Conflict: Resistance
 * "_0" is your save slot, so if I have a save in slot 24 it would be "TCR_v85_24.sav"
 
 ### **2. Edit values**
+* As of v1.0.0 it is highly recommended you use resource_table.py GUI if you're adding or removing resources to/from cities, as you will need the resource IDs found there.
 
 ### **3. Actions > Save changes**
 * Changes will be written to the save file.
@@ -28,7 +29,6 @@ A save editor for Total Conflict: Resistance
 
 # Possible Future Additions
 * Army/battalion composition editing (adding units, weapons, etc)
-* Adding/removing resources
 * Any suggestions welcome!
 
 # Notice
