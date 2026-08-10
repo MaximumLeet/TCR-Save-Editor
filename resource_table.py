@@ -1,8 +1,15 @@
+import ctypes
 import hashlib
 import struct
 import sys
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
+
+if sys.platform == "win32":
+    try:
+        ctypes.windll.shcore.SetProcessDpiAwareness(1)
+    except Exception:
+        pass
 
 fscld = frozenset({
     "7b88d1027b9f84df4da951f9e529879443a5802816c9b28bcf2db7904a72ee7d",
